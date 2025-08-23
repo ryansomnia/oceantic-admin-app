@@ -480,8 +480,8 @@ console.log('====================================');
                             <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="gender_category">Kategori Gender</label>
                             <select name="gender_category" value={formRaceCategoryData.gender_category || ''} onChange={handleFormInputChange} className="border rounded-lg w-full py-2 px-3 text-gray-700" required>
                                 <option value="">-- Pilih Kategori Gender --</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
+                                <option value="Laki-laki">Laki-laki</option>
+                                <option value="Perempuan">Perempuan</option>
                                 <option value="Mixed">Mixed</option>
                             </select>
                         </div>

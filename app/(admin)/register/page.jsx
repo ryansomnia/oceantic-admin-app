@@ -14,6 +14,8 @@ export default function ParticipantManagementPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
   // const router = useRouter(); // Penghapusan inisialisasi router
 
   // Fungsi untuk memuat semua data peserta dari backend
@@ -33,8 +35,8 @@ export default function ParticipantManagementPage() {
       }
       
       const result = await res.json();
-      if (result.detail && Array.isArray(result.detail)) {
-        const participantsWithId = result.detail.map((p, index) => ({
+      if (result.data && Array.isArray(result.data)) {
+        const participantsWithId = result.data.map((p, index) => ({
           ...p,
           id: p.id || index + 1 // Gunakan ID yang ada atau buat ID mock
         }));
@@ -63,33 +65,46 @@ export default function ParticipantManagementPage() {
   );
 
   // Fungsi untuk menangani penghapusan peserta
-  const handleDelete = async (id) => {
-    if (window.confirm("Hapus peserta ini? Tindakan ini tidak bisa dibatalkan!")) {
-      try {
-        const res = await fetch(`${API_BASE_URL}/deleteParticipant/${id}`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        if (res.ok) {
-          alert("Peserta berhasil dihapus.");
-          fetchParticipants(); // Memuat ulang data setelah penghapusan
-        } else {
-          const errorResult = await res.json();
-          alert(errorResult.message || "Tidak bisa menghapus peserta!");
-        }
-      } catch (err) {
-        alert("Koneksi server gagal!");
+// Fungsi untuk menangani penghapusan peserta
+const handleDelete = async (id) => {
+  if (window.confirm("Hapus peserta ini? Tindakan ini tidak bisa dibatalkan!")) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/deleteRegistration/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+
+          "Authorization": `Bearer ${token}`, // ⬅️ tambahkan token
+        },
+      });
+      if (res.ok) {
+        alert("Peserta berhasil dihapus.");
+        fetchParticipants(); // Memuat ulang data setelah penghapusan
+      } else {
+        const errorResult = await res.json();
+        alert(errorResult.message || "Tidak bisa menghapus peserta!");
       }
+    } catch (err) {
+      alert("Koneksi server gagal!");
     }
-  };
+  }
+};
+
+// Mengarahkan ke halaman edit dengan ID peserta
+const handleEdit = (id) => {
+  // misalnya diarahkan ke halaman edit
+  window.location.href = `/register/edit/${id}`;
+};
 
   // Mengarahkan ke halaman edit dengan ID peserta sebagai query parameter
   // Menggunakan window.location.href sebagai pengganti useRouter
-  const handleEdit = (id) => {
-    window.location.href = `/register/edit?id=${id}`;
+  // const handleEdit = (id) => {
+  //   window.location.href = `/register/edit?id=${id}`;
+  // };
+  const handleViewDetail = (id) => {
+    window.location.href = `/register/detail/${id}`;
   };
+  
 
   if (loading) {
     return (
@@ -139,56 +154,80 @@ export default function ParticipantManagementPage() {
       </div>
 
       <div className="bg-white p-6 rounded-xl shadow-md overflow-x-auto">
-        <table className="w-full divide-y divide-gray-200">
-          <thead>
-            <tr className="bg-gray-50">
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Lengkap</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kelamin</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Klub</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori Gaya</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori Usia</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori Jarak</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Registrasi</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredParticipants.length > 0 ? (
-              filteredParticipants.map((participant) => (
-                <tr key={participant.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-normal text-sm text-gray-900">{participant.full_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{participant.gender}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{participant.club_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{participant.stroke_category}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{participant.age_category}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{participant.distance_category}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(participant.registration_date)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleEdit(participant.id)}
-                        className="px-3 py-1 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(participant.id)}
-                        className="px-3 py-1 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                      >
-                        Hapus
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="8" className="px-6 py-4 text-center text-gray-500">Tidak ada data peserta ditemukan.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+  <table className="w-full divide-y divide-gray-200">
+    <thead>
+      <tr className="bg-gray-50">
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Lengkap</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kelamin</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Klub</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Biaya</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Pembayaran</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Registrasi</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+      </tr>
+    </thead>
+    <tbody className="bg-white divide-y divide-gray-200">
+      {filteredParticipants.length > 0 ? (
+        filteredParticipants.map((participant) => (
+          <tr key={participant.id} className="hover:bg-gray-50">
+            <td className="px-6 py-4 text-sm text-gray-900">{participant.full_name}</td>
+            <td className="px-6 py-4 text-sm text-gray-900">{participant.gender}</td>
+            <td className="px-6 py-4 text-sm text-gray-900">{participant.club_name}</td>
+            <td className="px-6 py-4 text-sm text-gray-900">
+              Rp {participant.total_fee?.toLocaleString('id-ID') || 0}
+            </td>
+            <td className="px-6 py-4 text-sm">
+              <span
+                className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                   participant.payment_status === 'Success'
+                    ? 'bg-green-100 text-green-700'
+                    : participant.payment_status === 'Pending' || participant.payment_status === 'Paid' 
+                    ? 'bg-yellow-100 text-yellow-700'
+                    : 'bg-red-100 text-red-700'
+                }`}
+              >
+                {participant.payment_status}
+              </span>
+            </td>
+            <td className="px-6 py-4 text-sm text-gray-900">
+              {formatDate(participant.registration_date)}
+            </td>
+            <td className="px-6 py-4 text-sm text-gray-900">
+  <div className="flex space-x-2">
+    <button
+      onClick={() => handleEdit(participant.id)}
+      className="px-3 py-1 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+    >
+      Edit
+    </button>
+    <button
+      onClick={() => handleDelete(participant.id)}
+      className="px-3 py-1 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600"
+    >
+      Hapus
+    </button>
+    <button
+      onClick={() => handleViewDetail(participant.id)}
+      className="px-3 py-1 text-sm font-medium text-white bg-gray-600 rounded-lg hover:bg-gray-700"
+    >
+      Detail
+    </button>
+  </div>
+</td>
+
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+            Tidak ada data peserta ditemukan.
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>
+
     </div>
   );
 }

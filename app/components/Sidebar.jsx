@@ -45,7 +45,8 @@ export default function Sidebar() {
       subItems: [
         { label: "Event Detail", path: "/event" },
         { label: "Race Category", path: "/event/race-category" },
-        { label: "Race Swimmer", path: "/event/race-swimmer" },
+        // { label: "Race Swimmer", path: "/event/race-swimmer" }, 
+        { label: "Download", path: "/event/download" },
       ],
     },
     { label: "Payment", icon: <CreditCard size={20} />, path: "/payment" },
