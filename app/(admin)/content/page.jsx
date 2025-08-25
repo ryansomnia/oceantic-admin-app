@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 import React from 'react';
 
 // Sesuaikan dengan URL backend Anda yang benar
-const API_BASE_URL = 'http://localhost:3025/oceantic/v1';
+const API_BASE_URL = 'https://api.oceanticsports.com/oceantic/v1';
 
 export default function ArticleManagementPage() {
     // State untuk data artikel dan status loading/error

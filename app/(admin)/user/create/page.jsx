@@ -7,7 +7,7 @@ import React, { useState } from "react";
 // Impor ikon dari lucide-react untuk tampilan yang lebih baik
 import { UserPlus, Save, X } from 'lucide-react';
 
-const API_BASE_URL = 'http://localhost:3025/oceantic/v1';
+const API_BASE_URL = 'https://api.oceanticsports.com/oceantic/v1';
 
 export default function CreateUserForm() {
   const [formData, setFormData] = useState({

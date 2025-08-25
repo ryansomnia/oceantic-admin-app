@@ -41,7 +41,7 @@ export default function CreateArticlePage() {
 
     try {
       // URL API disesuaikan menjadi '/articles' sesuai rute backend Anda
-      const res = await fetch("http://localhost:3025/oceantic/v1/articles", {
+      const res = await fetch("https://api.oceanticsports.com/oceantic/v1/articles", {
         method: "POST",
         headers: {
           // Penting: Jangan set 'Content-Type': 'application/json' saat menggunakan FormData

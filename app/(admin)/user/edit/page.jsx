@@ -25,7 +25,7 @@ export default function EditUserPage() {
 
   const fetchUser = async () => {
     try {
-      const res = await fetch(`http://localhost:3025/oceantic/v1/getUserById/${id}`, {
+      const res = await fetch(`https://api.oceanticsports.com/oceantic/v1/getUserById/${id}`, {
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
@@ -56,7 +56,7 @@ export default function EditUserPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`http://localhost:3025/oceantic/v1/updateUserProfile/${id}`, {
+      const res = await fetch(`https://api.oceanticsports.com/oceantic/v1/updateUserProfile/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
-const API_BASE_URL = "http://localhost:3025/oceantic/v1";
+const API_BASE_URL = "https://api.oceanticsports.com/oceantic/v1";
 
 export default function EditRegistrationPage() {
   const { id } = useParams(); // ambil :id dari URL

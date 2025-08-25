@@ -9,7 +9,7 @@ import Swal from 'sweetalert2';
 // Impor ikon dari lucide-react
 import { Search, Edit, Trash2, Plus, Save, X } from 'lucide-react';
 
-const API_BASE_URL = 'http://localhost:3025/oceantic/v1';
+const API_BASE_URL = 'https://api.oceanticsports.com/oceantic/v1';
 
 // Komponen form yang dapat digunakan kembali untuk menambah dan mengedit user
 const UserForm = ({ mode, initialData, onSubmit, onCancel, isLoading }) => {

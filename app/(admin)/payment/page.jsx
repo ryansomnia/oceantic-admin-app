@@ -11,7 +11,7 @@ import withReactContent from 'sweetalert2-react-content';
 const MySwal = withReactContent(Swal);
 
 // Sesuaikan dengan URL backend Anda yang benar
-const API_BASE_URL = 'http://localhost:3025/oceantic/v1';
+const API_BASE_URL = 'https://api.oceanticsports.com/oceantic/v1';
 
 export default function PaymentManagementPage() {
   const [payments, setPayments] = useState([]);

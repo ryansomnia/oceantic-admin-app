@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Loader2, FileSpreadsheet, FileDown } from "lucide-react";
 
-const API_BASE_URL = "http://localhost:3025/oceantic/v1";
+const API_BASE_URL = "https://api.oceanticsports.com/oceantic/v1";
 
 export default function DownloadEventFile() {
   const [events, setEvents] = useState([]);

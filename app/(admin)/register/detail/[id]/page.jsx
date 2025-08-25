@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-const API_BASE_URL = "http://localhost:3025/oceantic/v1";
+const API_BASE_URL = "https://api.oceanticsports.com/oceantic/v1";
 
 export default function ParticipantDetailPage() {
   const params = useParams();

@@ -44,7 +44,7 @@ export default function LoginPage() {
       // Pastikan URL ini sesuai dengan endpoint backend Anda yang di-deploy (misalnya Vercel)
       // Untuk pengembangan lokal: 'https://api.oceanticsports.com/oceantic/v1/login'
       // Untuk deployment: 'https://your-backend-url.vercel.app/oceantic/v1/login'
-      const response = await fetch('http://localhost:3025/oceantic/v1/login', { // Menggunakan port 5000 sesuai server.js terbaru
+      const response = await fetch('https://api.oceanticsports.com/oceantic/v1/login', { // Menggunakan port 5000 sesuai server.js terbaru
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
