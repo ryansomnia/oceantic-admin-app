@@ -16,8 +16,8 @@ export default function ParticipantDetailPage() {
       try {
         const res = await fetch(`${API_BASE_URL}/getRegistrationById/${id}`);
         const result = await res.json();
-        if (result.data && result.data.length > 0) {
-          setParticipant(result.data[0]);
+        if (result.data) {
+          setParticipant(result.data);   // langsung pakai object
         }
       } catch (err) {
         console.error("Error fetch detail:", err);
@@ -27,7 +27,6 @@ export default function ParticipantDetailPage() {
     };
     fetchDetail();
   }, [id]);
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
