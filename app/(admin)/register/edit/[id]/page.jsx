@@ -19,7 +19,7 @@ export default function EditRegistrationPage() {
     club_name: "",
     emergency_contact_name: "",
     emergency_contact_phone: "",
-    payment_status: "Pending",
+    // payment_status: "Pending",
     total_fee: 0,
   });
 
@@ -182,7 +182,7 @@ export default function EditRegistrationPage() {
           />
         </div>
 
-        <div>
+        {/* <div>
           <label className=" text-black block text-sm font-medium">Status Pembayaran</label>
           <select
             name="payment_status"
@@ -194,7 +194,7 @@ export default function EditRegistrationPage() {
             <option value="Paid">Paid</option>
             <option value="Rejected">Rejected</option>
           </select>
-        </div>
+        </div> */}
 
         <div>
           <label className=" text-black block text-sm font-medium">Total Biaya</label>

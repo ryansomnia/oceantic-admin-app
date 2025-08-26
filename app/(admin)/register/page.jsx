@@ -15,7 +15,7 @@ export default function ParticipantManagementPage() {
   
   // State untuk pagination
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
-  const itemsPerPage = 7;
+  const itemsPerPage = 5;
 
   // Ambil token otentikasi dari localStorage
   const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
@@ -182,7 +182,7 @@ export default function ParticipantManagementPage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kelamin</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Klub</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Biaya</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Pembayaran</th>
+              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Pembayaran</th> */}
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Registrasi</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
             </tr>
@@ -197,7 +197,7 @@ export default function ParticipantManagementPage() {
                   <td className="px-6 py-4 text-sm text-gray-900">
                     Rp {participant.total_fee?.toLocaleString('id-ID') || 0}
                   </td>
-                  <td className="px-6 py-4 text-sm">
+                  {/* <td className="px-6 py-4 text-sm">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-semibold ${
                          participant.payment_status === 'Success'
@@ -209,7 +209,7 @@ export default function ParticipantManagementPage() {
                     >
                       {participant.payment_status}
                     </span>
-                  </td>
+                  </td> */}
                   <td className="px-6 py-4 text-sm text-gray-900">
                     {formatDate(participant.registration_date)}
                   </td>

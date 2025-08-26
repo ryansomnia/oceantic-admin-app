@@ -4,6 +4,17 @@ import { useParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 const API_BASE_URL = "https://api.oceanticsports.com/oceantic/v1";
+const FILE_BASE_URL = "https://api.oceanticsports.com/";
+
+const getDocumentUrl = (url) => {
+  if (!url) return null;
+  // Kalau url sudah absolute (http/https), ganti domain admin -> api
+  if (url.startsWith("http")) {
+    return url.replace("https://admin.oceanticsports.com", FILE_BASE_URL);
+  }
+  // Kalau cuma path, prepend base API
+  return `${FILE_BASE_URL}${url}`;
+};
 
 export default function ParticipantDetailPage() {
   const params = useParams();
@@ -60,8 +71,8 @@ export default function ParticipantDetailPage() {
           <div>
             <span className="font-semibold text-gray-700">Dokumen Pendukung:</span>
             <a
-              href={participant.supporting_document_url}
-              target="_blank"
+      href={getDocumentUrl(participant.supporting_document_url)}
+      target="_blank"
               rel="noopener noreferrer"
               className="ml-2 text-blue-600 hover:underline"
             >

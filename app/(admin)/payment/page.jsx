@@ -1,16 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
-import { Loader2, CheckCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { LuSearch } from "react-icons/lu";
-import { FaEye, FaCheck } from 'react-icons/fa';
+import { FaEye } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
-// Buat instance SweetAlert2 dengan React Content
 const MySwal = withReactContent(Swal);
-
-// Sesuaikan dengan URL backend Anda yang benar
 const API_BASE_URL = 'https://api.oceanticsports.com/oceantic/v1';
 
 export default function PaymentManagementPage() {
@@ -18,29 +15,21 @@ export default function PaymentManagementPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isActionLoading, setIsActionLoading] = useState(null); // Menyimpan ID pembayaran yang sedang diproses
+  const [isActionLoading, setIsActionLoading] = useState(null);
 
-  // Fungsi untuk memuat semua data pembayaran dari backend
+  // pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   const fetchPayments = async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/getAllPayment`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      
-      if (!res.ok) {
-        throw new Error("Gagal mengambil data pembayaran.");
-      }
-      
+      const res = await fetch(`${API_BASE_URL}/getAllPayment`);
+      if (!res.ok) throw new Error("Gagal mengambil data pembayaran.");
+
       const result = await res.json();
       if (result.detail && Array.isArray(result.detail)) {
-        console.log('====================================');
-        console.log(result.detail);
-        console.log('====================================');
         setPayments(result.detail);
       } else {
         throw new Error("Data yang diterima tidak valid.");
@@ -54,48 +43,44 @@ export default function PaymentManagementPage() {
     }
   };
 
-  // Efek samping untuk memanggil fetchPayments saat komponen pertama kali dimuat
   useEffect(() => {
     fetchPayments();
   }, []);
 
-  // Filter data pembayaran berdasarkan pencarian
+  // filtering
   const filteredPayments = payments.filter((payment) =>
-
     payment.full_name.toLowerCase().includes(search.toLowerCase()) ||
     payment.title.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Fungsi untuk menampilkan bukti pembayaran di tab baru
+  // pagination logic
+  const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentPayments = filteredPayments.slice(startIndex, startIndex + itemsPerPage);
+
   const handleViewProof = (photoUrl) => {
-    // Memeriksa apakah photoUrl ada sebelum membuka jendela
     if (!photoUrl) {
       MySwal.fire('Error!', 'Bukti pembayaran tidak tersedia.', 'error');
       return;
     }
-    
+
     let fullUrl;
-    // Cek apakah photoUrl sudah merupakan URL lengkap
-    if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) {
+    if (photoUrl.startsWith('http')) {
       fullUrl = photoUrl;
     } else {
-      // Jika hanya path, gabungkan dengan URL dasar backend
       fullUrl = `${API_BASE_URL.replace('/oceantic/v1', '')}${photoUrl}`;
     }
 
     window.open(fullUrl, '_blank');
   };
 
-  // Fungsi untuk memperbarui status pembayaran melalui dropdown
   const handleStatusChange = async (paymentId, newStatus) => {
     setIsActionLoading(paymentId);
     try {
       const res = await fetch(`${API_BASE_URL}/updatePaymentStatusAdmin`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: paymentId, newStatus: newStatus }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: paymentId, newStatus }),
       });
 
       if (res.ok) {
@@ -104,59 +89,43 @@ export default function PaymentManagementPage() {
       } else {
         MySwal.fire('Gagal!', 'Gagal memperbarui status pembayaran.', 'error');
       }
-    } catch (err) {
+    } catch {
       MySwal.fire('Error', 'Terjadi kesalahan saat memperbarui status.', 'error');
     } finally {
       setIsActionLoading(null);
     }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+  };
 
-  // Tampilan loading penuh layar
+  const getStatusClasses = (status) => {
+    switch (status) {
+      case 'Success': return 'bg-blue-100 text-blue-800';
+      case 'Paid': return 'bg-green-100 text-green-800';
+      case 'Pending': return 'bg-yellow-100 text-yellow-800';
+      case 'Cancelled': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center p-8 bg-white rounded-2xl shadow-xl">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mb-4" />
-          <p className="text-xl font-semibold text-gray-600">Memuat data pembayaran...</p>
-        </div>
+        <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
       </div>
     );
   }
 
-  // Tampilan error penuh layar
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center p-8 bg-white rounded-2xl shadow-xl">
-          <p className="text-xl font-semibold text-red-600">Error: {error}</p>
-        </div>
+        <p className="text-xl font-semibold text-red-600">Error: {error}</p>
       </div>
     );
   }
-
-  // Fungsi helper untuk memformat tanggal
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('id-ID', options);
-  };
-
-  // Fungsi helper untuk menentukan warna status
-  const getStatusClasses = (status) => {
-    switch (status) {
-      case 'Success':
-        return 'bg-blue-100 text-blue-800';
-      case 'Paid':
-        return 'bg-green-100 text-green-800';
-      case 'Pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
 
   return (
     <div className="p-8 font-sans">
@@ -169,44 +138,42 @@ export default function PaymentManagementPage() {
           type="text"
           placeholder="Cari berdasarkan nama peserta atau event..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setCurrentPage(1); // reset ke page 1 saat search
+          }}
           className="pl-10 pr-4 py-2 border text-gray-800 bg-white rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      {/* Tabel Data Pembayaran */}
+      {/* Tabel */}
       <div className="bg-white p-6 rounded-xl shadow-md overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead>
             <tr className="bg-gray-50">
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Peserta</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Pendaftaran</th>
-              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metode</th> */}
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase">Nama Peserta</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase">Event</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase">Tanggal Pendaftaran</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase">Aksi</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {filteredPayments.length > 0 ? (
-              filteredPayments.map((payment) => (
-              
+            {currentPayments.length > 0 ? (
+              currentPayments.map((payment) => (
                 <tr key={payment.id} className="hover:bg-gray-50">
-                  
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.full_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.title}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(payment.registration_date)}</td>
-                  {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.payment_method}</td> */}
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClasses(payment.payment_status)}`}>
+                  <td className="px-6 py-4 text-black whitespace-nowrap text-sm">{payment.full_name}</td>
+                  <td className="px-6 py-4 text-black whitespace-nowrap text-sm">{payment.title}</td>
+                  <td className="px-6 py-4 text-black whitespace-nowrap text-sm">{formatDate(payment.registration_date)}</td>
+                  <td className="px-6 py-4 text-black whitespace-nowrap">
+                    <span className={`px-2 inline-flex text-xs font-semibold rounded-full ${getStatusClasses(payment.payment_status)}`}>
                       {payment.payment_status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex items-center">
+                  <td className="px-6 py-4 text-black whitespace-nowrap text-sm font-medium flex items-center">
                     <button
                       onClick={() => handleViewProof(payment.payment_photo_url)}
                       className={`text-blue-600 hover:text-blue-900 mr-4 ${!payment.payment_photo_url ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      title="Lihat Bukti"
                       disabled={!payment.payment_photo_url}
                     >
                       <FaEye className="h-4 w-4" />
@@ -215,18 +182,17 @@ export default function PaymentManagementPage() {
                       <select
                         value={payment.payment_status}
                         onChange={(e) => handleStatusChange(payment.id, e.target.value)}
-                        className="appearance-none text-black pr-8 py-1 pl-2 border rounded-md text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="appearance-none text-black pr-8 py-1 pl-2 border rounded-md text-sm cursor-pointer"
                         disabled={isActionLoading === payment.id}
                       >
                         <option value="Pending">Pending</option>
                         <option value="Success">Success</option>
                         <option value="Cancelled">Cancelled</option>
                         <option value="Refunded">Refunded</option>
-
                       </select>
                       {isActionLoading === payment.id && (
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500">
-                          <Loader2 className="h-4 w-4 animate-spin" />
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                          <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
                         </div>
                       )}
                     </div>
@@ -235,11 +201,40 @@ export default function PaymentManagementPage() {
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="px-6 py-4 text-center text-gray-500">Tidak ada data pembayaran ditemukan.</td>
+                <td colSpan="5" className="px-6 py-4 text-center text-gray-500">Tidak ada data pembayaran ditemukan.</td>
               </tr>
             )}
           </tbody>
         </table>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className=" text-black  flex justify-center items-center mt-6 space-x-2">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 border rounded-lg disabled:opacity-50"
+            >
+              Prev
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`px-3 py-1 border rounded-lg ${currentPage === i + 1 ? 'bg-blue-500 text-white' : ''}`}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 border rounded-lg disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
