@@ -124,7 +124,7 @@ export default function DownloadEventFile() {
         <select
           value={selectedEvent}
           onChange={(e) => setSelectedEvent(e.target.value)}
-          className="w-full p-3 border rounded-lg mb-6 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          className="w-full p-3 border text-black rounded-lg mb-6 focus:ring-2 focus:ring-blue-500 focus:outline-none"
         >
           <option value="">-- Pilih Event --</option>
           {events.map((event) => (

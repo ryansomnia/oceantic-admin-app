@@ -38,6 +38,9 @@ export default function PaymentManagementPage() {
       
       const result = await res.json();
       if (result.detail && Array.isArray(result.detail)) {
+        console.log('====================================');
+        console.log(result.detail);
+        console.log('====================================');
         setPayments(result.detail);
       } else {
         throw new Error("Data yang diterima tidak valid.");
@@ -58,6 +61,7 @@ export default function PaymentManagementPage() {
 
   // Filter data pembayaran berdasarkan pencarian
   const filteredPayments = payments.filter((payment) =>
+
     payment.full_name.toLowerCase().includes(search.toLowerCase()) ||
     payment.title.toLowerCase().includes(search.toLowerCase())
   );
@@ -178,7 +182,7 @@ export default function PaymentManagementPage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Peserta</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Pendaftaran</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metode</th>
+              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metode</th> */}
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
             </tr>
@@ -186,11 +190,13 @@ export default function PaymentManagementPage() {
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredPayments.length > 0 ? (
               filteredPayments.map((payment) => (
+              
                 <tr key={payment.id} className="hover:bg-gray-50">
+                  
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.full_name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.title}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(payment.registration_date)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.payment_method}</td>
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.payment_method}</td> */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClasses(payment.payment_status)}`}>
                       {payment.payment_status}
@@ -209,7 +215,7 @@ export default function PaymentManagementPage() {
                       <select
                         value={payment.payment_status}
                         onChange={(e) => handleStatusChange(payment.id, e.target.value)}
-                        className="appearance-none pr-8 py-1 pl-2 border rounded-md text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="appearance-none text-black pr-8 py-1 pl-2 border rounded-md text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
                         disabled={isActionLoading === payment.id}
                       >
                         <option value="Pending">Pending</option>
