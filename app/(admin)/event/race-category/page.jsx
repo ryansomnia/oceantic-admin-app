@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
@@ -21,6 +21,10 @@ export default function RaceCategoryManagementPage() {
 
     // State untuk fungsionalitas pencarian
     const [searchQuery, setSearchQuery] = useState('');
+    
+    // State untuk pagination
+    const [currentPageNumber, setCurrentPageNumber] = useState(1);
+    const itemsPerPage = 5;
 
     // State untuk mengontrol tampilan: 'list', 'add', atau 'edit'
     const [currentPage, setCurrentPage] = useState('list');
@@ -41,9 +45,7 @@ export default function RaceCategoryManagementPage() {
 
     // Fungsi untuk mengambil token dari localStorage
     const getToken = () => localStorage.getItem('authToken');
-console.log('=============sanbahsbda=======================');
-console.log(getToken);
-console.log('====================================');
+    
     // --- Fungsi untuk Mengambil Semua Event (untuk dropdown) ---
     const fetchEventsForDropdown = async () => {
         try {
@@ -278,6 +280,14 @@ console.log('====================================');
         category.age_group_class.toLowerCase().includes(searchQuery.toLowerCase()) ||
         category.gender_category.toLowerCase().includes(searchQuery.toLowerCase())
     );
+    
+    // Hitung data yang ditampilkan di halaman saat ini
+    const startIndex = (currentPageNumber - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const visibleRaceCategories = filteredRaceCategories.slice(startIndex, endIndex);
+
+    // Hitung jumlah total halaman
+    const totalPages = Math.ceil(filteredRaceCategories.length / itemsPerPage);
 
     // Efek samping untuk mengambil event saat komponen dimuat
     useEffect(() => {
@@ -345,7 +355,10 @@ console.log('====================================');
                             type="text"
                             placeholder="Cari kategori perlombaan..."
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                                setCurrentPageNumber(1); // Kembali ke halaman 1 saat pencarian
+                            }}
                             className="pl-10 pr-4 py-2 border text-black bg-white rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
@@ -394,8 +407,8 @@ console.log('====================================');
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {filteredRaceCategories.length > 0 ? (
-                                filteredRaceCategories.map(category => (
+                            {visibleRaceCategories.length > 0 ? (
+                                visibleRaceCategories.map(category => (
                                     <tr key={category.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{category.id}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{category.race_number}</td>
@@ -432,6 +445,39 @@ console.log('====================================');
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center mt-6 space-x-2">
+                        <button
+                            onClick={() => setCurrentPageNumber(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPageNumber === 1}
+                            className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Previous
+                        </button>
+                        {Array.from({ length: totalPages }, (_, index) => (
+                            <button
+                                key={index + 1}
+                                onClick={() => setCurrentPageNumber(index + 1)}
+                                className={`px-4 py-2 border rounded-lg ${
+                                    currentPageNumber === index + 1
+                                        ? "bg-blue-600 text-white"
+                                        : "bg-white text-gray-700 hover:bg-gray-200"
+                                }`}
+                            >
+                                {index + 1}
+                            </button>
+                        ))}
+                        <button
+                            onClick={() => setCurrentPageNumber(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPageNumber === totalPages}
+                            className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Next
+                        </button>
+                    </div>
+                )}
             </div>
         );
     }

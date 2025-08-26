@@ -1,12 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
-// Kita mengasumsikan SweetAlert2 dimuat melalui CDN.
-// Contoh: <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-// sehingga fungsi Swal tersedia secara global.
+// Import SweetAlert2
 import Swal from 'sweetalert2';
 
 
-// Impor ikon dari lucide-react
+// Import ikon dari lucide-react
 import { Search, Edit, Trash2, Plus, Save, X } from 'lucide-react';
 
 const API_BASE_URL = 'https://api.oceanticsports.com/oceantic/v1';
@@ -125,6 +123,10 @@ export default function UserManagementUI() {
   });
   const [isFormLoading, setIsFormLoading] = useState(false);
   const [formError, setFormError] = useState(null);
+
+  // State untuk pagination
+  const [currentPageNumber, setCurrentPageNumber] = useState(1);
+  const itemsPerPage = 7; 
 
   // Ambil token otentikasi dari localStorage
   const getToken = () => typeof window !== "undefined" ? localStorage.getItem('authToken') : null;
@@ -297,6 +299,14 @@ export default function UserManagementUI() {
     user.nohp?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Hitung data yang ditampilkan di halaman saat ini
+  const startIndex = (currentPageNumber - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const visibleUsers = filteredUsers.slice(startIndex, endIndex);
+
+  // Hitung jumlah total halaman
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -333,7 +343,10 @@ export default function UserManagementUI() {
               type="text"
               placeholder="Cari pengguna..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPageNumber(1); // Kembali ke halaman 1 saat mencari
+              }}
               className="pl-10 pr-4 py-2 border text-black bg-white rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -369,8 +382,8 @@ export default function UserManagementUI() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredUsers.length > 0 ? (
-                filteredUsers.map(user => (
+              {visibleUsers.length > 0 ? (
+                visibleUsers.map(user => (
                   <tr key={user.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.username}</td>
@@ -406,6 +419,38 @@ export default function UserManagementUI() {
               )}
             </tbody>
           </table>
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center mt-6 space-x-2">
+              <button
+                onClick={() => setCurrentPageNumber(prev => Math.max(prev - 1, 1))}
+                disabled={currentPageNumber === 1}
+                className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index + 1}
+                  onClick={() => setCurrentPageNumber(index + 1)}
+                  className={`px-4 py-2 border rounded-lg ${
+                    currentPageNumber === index + 1
+                      ? "bg-blue-600 text-white"
+                      : "bg-white text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => setCurrentPageNumber(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPageNumber === totalPages}
+                className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
