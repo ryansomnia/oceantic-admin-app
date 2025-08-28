@@ -73,7 +73,7 @@ export default function EditRegistrationPage() {
 
       if (res.ok) {
         Swal.fire("Sukses", "Data peserta berhasil diperbarui", "success").then(() => {
-          router.push("/participants"); // balik ke list peserta
+          router.push("/"); // balik ke list peserta
         });
       } else {
         const errData = await res.json();
