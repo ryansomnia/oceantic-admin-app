@@ -5,6 +5,7 @@ import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import { LuSearch } from "react-icons/lu";
 import Swal from 'sweetalert2';
 import React from 'react';
+import Cookies from "js-cookie";
 
 // Sesuaikan dengan URL backend Anda yang benar
 const API_BASE_URL = 'https://api.oceanticsports.com/oceantic/v1';
@@ -44,7 +45,7 @@ export default function RaceCategoryManagementPage() {
     const [formError, setFormError] = useState(null);
 
     // Fungsi untuk mengambil token dari localStorage
-    const getToken = () => localStorage.getItem('authToken');
+    const getToken = () => Cookies.get('authToken');
     
     // --- Fungsi untuk Mengambil Semua Event (untuk dropdown) ---
     const fetchEventsForDropdown = async () => {

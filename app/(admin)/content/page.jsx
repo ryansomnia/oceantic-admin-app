@@ -5,11 +5,20 @@ import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import { LuSearch } from "react-icons/lu";
 import Swal from 'sweetalert2';
 import React from 'react';
+import ProtectedPage from "@/app/components/ProtectedPage";
+import Cookies from "js-cookie";
+import { useRouter } from 'next/navigation';
+
 
 // Sesuaikan dengan URL backend Anda yang benar
 const API_BASE_URL = 'https://api.oceanticsports.com/oceantic/v1';
 
 export default function ArticleManagementPage() {
+    const router = useRouter();
+    const [user, setUser] = useState({
+      fullname: "",
+      role: "",
+    });
     // State untuk data artikel dan status loading/error
     const [articles, setArticles] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -39,7 +48,7 @@ export default function ArticleManagementPage() {
     const [formError, setFormError] = useState(null);
 
     // Fungsi untuk mengambil token dari localStorage
-    const getToken = () => localStorage.getItem('authToken');
+    const getToken = () => Cookies.get('authToken');
 
     // --- Fungsi untuk Mengambil Semua Artikel ---
     const fetchArticles = async () => {
@@ -281,9 +290,29 @@ export default function ArticleManagementPage() {
     });
 
     // Efek samping untuk mengambil artikel saat komponen dimuat
+    
     useEffect(() => {
-        fetchArticles();
-    }, []);
+        const token = Cookies.get("authToken");
+        const fullname = localStorage.getItem("username");
+        const role = Cookies.get("role");
+      
+        if (!token) {
+          Swal.fire({
+            icon: "error",
+            title: "Sesi berakhir",
+            text: "Silakan login kembali",
+            timer: 2000,
+            showConfirmButton: false,
+          }).then(() => router.push("/login"));
+        } else {
+          setUser({ fullname, role });
+          fetchArticles(); // 🔥 panggil fetch di sini setelah login valid
+        }
+      }, [router]);
+
+    // useEffect(() => {
+    //     fetchArticles();
+    // }, []);
 
     // Efek samping untuk memuat data artikel ke formulir saat currentArticleId berubah (mode edit)
     // atau mereset form data saat mode 'add'
@@ -311,6 +340,7 @@ export default function ArticleManagementPage() {
         if (error) return <div className="text-center p-4 text-red-500">Error: {error}</div>;
 
         return (
+            <ProtectedPage>
             <div className="p-8">
                 <h2 className="text-3xl font-bold text-gray-800 mb-6">Manajemen Artikel</h2>
 
@@ -422,6 +452,7 @@ export default function ArticleManagementPage() {
                     </table>
                 </div>
             </div>
+             </ProtectedPage>
         );
     }
 

@@ -5,11 +5,19 @@ import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import { LuSearch } from "react-icons/lu";
 import Swal from 'sweetalert2';
 import React from 'react';
+import ProtectedPage from '@/app/components/ProtectedPage';
+import { useRouter } from 'next/navigation';
+import Cookies from "js-cookie";
 
 // Sesuaikan dengan URL backend Anda yang benar
 const API_BASE_URL = 'https://api.oceanticsports.com/oceantic/v1'; // Pastikan ini sesuai dengan server.js Anda
 
 export default function EventManagementPage() {
+    const router = useRouter();
+    const [user, setUser] = useState({
+      fullname: "",
+      role: "",
+    });
     // State untuk data event dan status loading/error
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -37,7 +45,7 @@ export default function EventManagementPage() {
     const [formError, setFormError] = useState(null);
 
     // Fungsi untuk mengambil token dari localStorage
-    const getToken = () => localStorage.getItem('authToken');
+    const getToken = () =>Cookies.get('authToken');
 
     // --- Fungsi untuk Mengambil Semua Event ---
     const fetchEvents = async () => {
@@ -226,9 +234,28 @@ export default function EventManagementPage() {
     );
 
     // Efek samping untuk mengambil event saat komponen dimuat
+    // useEffect(() => {
+    //     fetchEvents();
+    // }, []);
+
     useEffect(() => {
-        fetchEvents();
-    }, []);
+        const token = Cookies.get("authToken");
+        const fullname = localStorage.getItem("username");
+        const role = Cookies.get("role");
+      
+        if (!token) {
+          Swal.fire({
+            icon: "error",
+            title: "Sesi berakhir",
+            text: "Silakan login kembali",
+            timer: 2000,
+            showConfirmButton: false,
+          }).then(() => router.push("/login"));
+        } else {
+          setUser({ fullname, role });
+          fetchEvents();
+        }
+      }, [router]);
 
     // Efek samping untuk memuat data event ke formulir saat currentEventId berubah (mode edit)
     // atau mereset form data saat mode 'add'
@@ -256,6 +283,7 @@ export default function EventManagementPage() {
         if (error) return <div className="text-center p-4 text-red-500">Error: {error}</div>;
 
         return (
+            <ProtectedPage>
             <div className="p-8">
                 <h2 className="text-3xl font-bold text-gray-800 mb-6">Manajemen Event</h2>
 
@@ -350,6 +378,7 @@ export default function EventManagementPage() {
                     </table>
                 </div>
             </div>
+            </ProtectedPage>
         );
     }
 

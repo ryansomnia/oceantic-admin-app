@@ -3,11 +3,19 @@
 import React, { useEffect, useState } from "react";
 import { Loader2, Search } from 'lucide-react';
 import Swal from 'sweetalert2';
+import Cookies from "js-cookie";
+import ProtectedPage from "@/app/components/ProtectedPage";
+import { useRouter } from 'next/navigation';
 
 // URL API backend
 const API_BASE_URL = 'https://api.oceanticsports.com/oceantic/v1';
 
 export default function ParticipantManagementPage() {
+  const router = useRouter();
+  const [user, setUser] = useState({
+    fullname: "",
+    role: "",
+  });
   const [participants, setParticipants] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -57,9 +65,28 @@ export default function ParticipantManagementPage() {
   };
 
   // Efek samping untuk memanggil fetchParticipants saat komponen pertama kali dimuat
+  // useEffect(() => {
+  //   fetchParticipants();
+  // }, []);
+
   useEffect(() => {
-    fetchParticipants();
-  }, []);
+    const token = Cookies.get("authToken");
+    const fullname = localStorage.getItem("username");
+    const role = Cookies.get("role");
+  
+    if (!token) {
+      Swal.fire({
+        icon: "error",
+        title: "Sesi berakhir",
+        text: "Silakan login kembali",
+        timer: 2000,
+        showConfirmButton: false,
+      }).then(() => router.push("/login"));
+    } else {
+      setUser({ fullname, role });
+      fetchParticipants(); // 🔥 panggil fetch di sini setelah login valid
+    }
+  }, [router]);
 
   // Filter data peserta berdasarkan nama lengkap atau nama klub
   const filteredParticipants = participants.filter((participant) =>
@@ -155,6 +182,8 @@ export default function ParticipantManagementPage() {
   };
 
   return (
+    <ProtectedPage>
+
     <div className="p-8 font-sans">
       <h2 className="text-3xl font-bold text-gray-800 mb-6">Manajemen Peserta</h2>
 
@@ -280,5 +309,7 @@ export default function ParticipantManagementPage() {
           )}
       </div>
     </div>
+    </ProtectedPage>
+
   );
 }

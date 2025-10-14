@@ -2,10 +2,13 @@
 import React, { useState, useEffect } from "react";
 // Import SweetAlert2
 import Swal from 'sweetalert2';
+import Cookies from "js-cookie";
 
+import { useRouter } from 'next/navigation';
 
 // Import ikon dari lucide-react
 import { Search, Edit, Trash2, Plus, Save, X } from 'lucide-react';
+import ProtectedPage from "@/app/components/ProtectedPage";
 
 const API_BASE_URL = 'https://api.oceanticsports.com/oceantic/v1';
 
@@ -105,6 +108,11 @@ const UserForm = ({ mode, initialData, onSubmit, onCancel, isLoading }) => {
 };
 
 export default function UserManagementUI() {
+  const router = useRouter();
+  const [user, setUser] = useState({
+    fullname: "",
+    role: "",
+  });
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -129,7 +137,8 @@ export default function UserManagementUI() {
   const itemsPerPage = 7; 
 
   // Ambil token otentikasi dari localStorage
-  const getToken = () => typeof window !== "undefined" ? localStorage.getItem('authToken') : null;
+  const getToken = () => typeof window !== "undefined" ? Cookies.get('authToken'): null;
+  // const getToken = () => Cookies.get('authToken');
 
   // Fungsi untuk mengambil semua data pengguna dari API
   const fetchUsers = async () => {
@@ -306,10 +315,27 @@ export default function UserManagementUI() {
 
   // Hitung jumlah total halaman
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    const token = Cookies.get("authToken");
+    const fullname = localStorage.getItem("username");
+    const role = Cookies.get("role");
+  
+    if (!token) {
+      Swal.fire({
+        icon: "error",
+        title: "Sesi berakhir",
+        text: "Silakan login kembali",
+        timer: 2000,
+        showConfirmButton: false,
+      }).then(() => router.push("/login"));
+    } else {
+      setUser({ fullname, role });
+      fetchUsers(); // 🔥 panggil fetch di sini setelah login valid
+    }
+  }, [router]);
+  // useEffect(() => {
+  //   fetchUsers();
+  // }, []);
 
   useEffect(() => {
     if (currentPage === 'edit' && currentUserId) {
@@ -334,6 +360,7 @@ export default function UserManagementUI() {
     if (error) return <div className="text-center p-4 text-red-500">Error: {error}</div>;
 
     return (
+      <ProtectedPage>
       <div className="p-8">
         <h2 className="text-3xl font-bold text-gray-800 mb-6">Manajemen Pengguna</h2>
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 space-y-4 md:space-y-0">
@@ -453,6 +480,7 @@ export default function UserManagementUI() {
           )}
         </div>
       </div>
+      </ProtectedPage>
     );
   }
 

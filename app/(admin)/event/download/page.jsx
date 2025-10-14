@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Loader2, FileSpreadsheet, FileDown } from "lucide-react";
+import Cookies from "js-cookie";
 
 const API_BASE_URL = "https://api.oceanticsports.com/oceantic/v1";
 
@@ -11,7 +12,7 @@ export default function DownloadEventFile() {
   const [loadingExcel, setLoadingExcel] = useState(false);
   const [loadingPdf, setLoadingPdf] = useState(false);
   const token =
-    typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+    typeof window !== "undefined" ? Cookies.get('authToken') : null;
 
   // Ambil daftar event "Open for Registration"
   useEffect(() => {
