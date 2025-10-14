@@ -4,17 +4,17 @@ import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
 export default function CreateArticlePage() {
-  const [form, setForm] = useState({ title: "", content: "", category: "", image: null });
+  // DITAMBAHKAN: field 'path' untuk menyesuaikan dengan backend
+  const [form, setForm] = useState({ title: "", content: "", category: "", path: "", image: null });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  // Tidak perlu userId dari localStorage karena backend akan mengambilnya dari JWT
   const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setForm((prev) => ({
       ...prev,
-      [name]: files ? files[0] : value, // Mengambil file pertama jika inputnya adalah file
+      [name]: files ? files[0] : value,
     }));
   };
 
@@ -22,11 +22,10 @@ export default function CreateArticlePage() {
     e.preventDefault();
     setLoading(true);
 
-    // Validasi token
     if (!token) {
       Swal.fire("Sesi Berakhir", "Anda harus login untuk membuat artikel.", "warning");
       setLoading(false);
-      router.push("/login"); // Arahkan ke halaman login
+      router.push("/login");
       return;
     }
 
@@ -34,19 +33,17 @@ export default function CreateArticlePage() {
     formData.append("title", form.title);
     formData.append("content", form.content);
     formData.append("category", form.category);
-    // user_id tidak perlu dikirim dari frontend, backend akan mengambilnya dari token
+    formData.append("path", form.path); // DITAMBAHKAN: Mengirim field 'path'
+
     if (form.image) {
       formData.append("image", form.image);
     }
 
     try {
-      // URL API disesuaikan menjadi '/articles' sesuai rute backend Anda
-      const res = await fetch("https://api.oceanticsports.com/oceantic/v1/articles", {
+      // DIPERBAIKI: URL API disesuaikan dengan rute backend yang benar
+      const res = await fetch("https://api.oceanticsports.com/oceantic/v1/articles/createArticle", {
         method: "POST",
         headers: {
-          // Penting: Jangan set 'Content-Type': 'application/json' saat menggunakan FormData
-          // Browser akan secara otomatis mengatur Content-Type: multipart/form-data
-          // beserta boundary yang diperlukan saat Anda mengirim objek FormData.
           Authorization: `Bearer ${token}`,
         },
         body: formData,
@@ -55,8 +52,7 @@ export default function CreateArticlePage() {
 
       if (res.ok) {
         Swal.fire("Berhasil!", "Artikel berhasil dibuat.", "success");
-        // Ganti '/konten' dengan rute yang sesuai setelah artikel dibuat
-        router.push("/admin/articles"); // Contoh: arahkan ke halaman manajemen artikel admin
+        router.push("/admin/articles");
       } else {
         Swal.fire("Gagal!", data.message || "Terjadi kesalahan saat membuat artikel.", "error");
       }
@@ -110,13 +106,27 @@ export default function CreateArticlePage() {
             required
           />
         </div>
+        {/* DITAMBAHKAN: Input untuk field 'path' */}
+        <div>
+          <label htmlFor="path" className="block text-sm font-medium text-gray-700 mb-1">Path (URL Slug)</label>
+          <input
+            type="text"
+            id="path"
+            name="path"
+            value={form.path}
+            onChange={handleChange}
+            placeholder="Contoh: /berita/judul-artikel-ini"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+          />
+           <p className="text-xs text-gray-500 mt-1">Opsional. Biarkan kosong jika tidak ada.</p>
+        </div>
         <div>
           <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-1">Gambar Artikel (Opsional)</label>
           <input
             type="file"
             id="image"
             name="image"
-            accept="image/*" // Hanya menerima file gambar
+            accept="image/*"
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition duration-150 ease-in-out"
           />
@@ -127,7 +137,7 @@ export default function CreateArticlePage() {
         <div className="flex justify-end space-x-4 pt-4">
           <button
             type="button"
-            onClick={() => router.back()} // Kembali ke halaman sebelumnya
+            onClick={() => router.back()}
             className="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-6 py-2 rounded-lg transition duration-200"
           >
             Batal

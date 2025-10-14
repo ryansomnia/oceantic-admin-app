@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import Cookies from "js-cookie";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -11,9 +12,9 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
+   const token = Cookies.get("authToken"); // ambil dari cookie
     const fullname = localStorage.getItem("username");
-    const role = localStorage.getItem("userRole");
+    const role = Cookies.get("role"); // ambil dari cookie juga
 
     if (!token) {
       Swal.fire({
@@ -49,6 +50,7 @@ export default function DashboardPage() {
   };
 
   return (
+    
     <div className="min-h-screen bg-gray-100 flex flex-col">
   
       {/* Content */}

@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { Home, User, FileText, Calendar, CreditCard, BookOpen, LogOut, ChevronDown, ChevronUp } from "lucide-react";
 import Swal from "sweetalert2";
 import React, { useState } from 'react'; // Import React dan useState
+import Cookies from "js-cookie";
 
 export default function Sidebar() {
   const router = useRouter();
@@ -23,6 +24,9 @@ export default function Sidebar() {
     }).then((result) => {
       if (result.isConfirmed) {
         localStorage.clear();
+        Cookies.remove("authToken"); // Hapus token
+        Cookies.remove("role"); // Hapus role
+
         Swal.fire({
           icon: "success",
           title: "Logout berhasil",

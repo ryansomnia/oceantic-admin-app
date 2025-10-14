@@ -5,6 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2'; // Import SweetAlert2
+import Cookies from "js-cookie";
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -46,11 +48,14 @@ export default function LoginPage() {
       if (response.ok) {
         const data = await response.json();
 
-        // Simpan token dan user info
-        localStorage.setItem('authToken', data.token);
+        // Simpan token dan usear info
+        Cookies.set('authToken', data.token, { path: '/', expires: 1 }); // 1 hari
+Cookies.set('role', data.user.role, { path: '/', expires: 1 });
+
+        // localStorage.setItem('authToken', data.token);
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('username', data.user.fullname);
-        localStorage.setItem('userRole', data.user.role);
+        // localStorage.setItem('userRole', data.user.role);
         localStorage.setItem('userId', data.user.id);
 
         // Cek role

@@ -5,12 +5,21 @@ import { Loader2 } from 'lucide-react';
 import { LuSearch } from "react-icons/lu";
 import { FaEye } from 'react-icons/fa';
 import Swal from 'sweetalert2';
+import { useRouter } from 'next/navigation';
+
 import withReactContent from 'sweetalert2-react-content';
+import ProtectedPage from "@/app/components/ProtectedPage";
+import Cookies from "js-cookie";
 
 const MySwal = withReactContent(Swal);
 const API_BASE_URL = 'https://api.oceanticsports.com/oceantic/v1';
 
 export default function PaymentManagementPage() {
+  const router = useRouter();
+  const [user, setUser] = useState({
+    fullname: "",
+    role: "",
+  });
   const [payments, setPayments] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -43,10 +52,47 @@ export default function PaymentManagementPage() {
     }
   };
 
-  useEffect(() => {
-    fetchPayments();
-  }, []);
+  // useEffect(() => {
+  //   fetchPayments();
+  // }, []);
 
+  // useEffect(() => {
+  //   const token = Cookies.get("authToken"); // ambil dari cookie
+  //    const fullname = localStorage.getItem("username");
+  //    const role = Cookies.get("role"); // ambil dari cookie juga
+ 
+  //    if (!token) {
+  //      Swal.fire({
+  //        icon: "warning",
+  //        title: "Sesi berakhir",
+  //        text: "Silakan login kembali",
+  //        timer: 2000,
+  //        showConfirmButton: false,
+  //      }).then(() => router.push("/login"));
+  //    } else {
+  //      setUser({ fullname, role });
+  //    }
+  //  }, [router]);
+ 
+  useEffect(() => {
+    const token = Cookies.get("authToken");
+    const fullname = localStorage.getItem("username");
+    const role = Cookies.get("role");
+  
+    if (!token) {
+      Swal.fire({
+        icon: "error",
+        title: "Sesi berakhir",
+        text: "Silakan login kembali",
+        timer: 2000,
+        showConfirmButton: false,
+      }).then(() => router.push("/login"));
+    } else {
+      setUser({ fullname, role });
+      fetchPayments(); // 🔥 panggil fetch di sini setelah login valid
+    }
+  }, [router]);
+  
   // filtering
   const filteredPayments = payments.filter((payment) =>
     payment.full_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -128,6 +174,8 @@ export default function PaymentManagementPage() {
   }
 
   return (
+    <ProtectedPage>
+
     <div className="p-8 font-sans">
       <h2 className="text-3xl font-bold text-gray-800 mb-6">Manajemen Pembayaran</h2>
 
@@ -237,5 +285,7 @@ export default function PaymentManagementPage() {
         )}
       </div>
     </div>
+    </ProtectedPage>
+
   );
 }
