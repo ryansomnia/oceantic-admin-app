@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import Cookies from "js-cookie";
+import ProtectedPage from "@/app/components/ProtectedPage";
 
 const API_BASE_URL = "https://api.oceanticsports.com/oceantic/v1";
 
@@ -24,7 +26,7 @@ export default function EditRegistrationPage() {
   });
 
   const [loading, setLoading] = useState(true);
-  const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+  const token = typeof window !== "undefined" ? Cookies.get('authToken') : null;
 
   // Ambil data participant by id
   const fetchParticipant = async () => {
@@ -89,6 +91,7 @@ export default function EditRegistrationPage() {
   }
 
   return (
+    <ProtectedPage>
     <div className="p-8 font-sans max-w-3xl mx-auto">
       <h2 className=" text-black text-2xl font-bold mb-6">Edit Registrasi Peserta</h2>
       <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-xl shadow-md">
@@ -217,5 +220,6 @@ export default function EditRegistrationPage() {
         </div>
       </form>
     </div>
+    </ProtectedPage>
   );
 }

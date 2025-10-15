@@ -6,6 +6,7 @@ import React, { useState } from "react";
 
 // Impor ikon dari lucide-react untuk tampilan yang lebih baik
 import { UserPlus, Save, X } from 'lucide-react';
+import ProtectedPage from "@/app/components/ProtectedPage";
 
 const API_BASE_URL = 'https://api.oceanticsports.com/oceantic/v1';
 
@@ -108,6 +109,7 @@ export default function CreateUserForm() {
   };
 
   return (
+    <ProtectedPage>
     <div className="bg-gray-100 min-h-screen flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-8 transform transition-all duration-300 hover:scale-105">
         <h2 className="text-3xl font-bold text-gray-800 text-center mb-6 flex items-center justify-center gap-3">
@@ -173,5 +175,6 @@ export default function CreateUserForm() {
         </form>
       </div>
     </div>
+    </ProtectedPage>
   );
 }

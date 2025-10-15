@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
+import ProtectedPage from "@/app/components/ProtectedPage";
 
 export default function EditUserPage() {
   const router = useRouter();
@@ -80,6 +81,7 @@ export default function EditUserPage() {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
+    <ProtectedPage>
     <div className="max-w-lg mx-auto mt-10 p-6 bg-white rounded-xl shadow-lg">
       <h1 className="text-2xl font-bold mb-4">Edit Pengguna</h1>
       <form onSubmit={handleSubmit}>
@@ -143,5 +145,6 @@ export default function EditUserPage() {
         </div>
       </form>
     </div>
+    </ProtectedPage>
   );
 }

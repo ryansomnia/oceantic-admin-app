@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
+import ProtectedPage from "@/app/components/ProtectedPage";
 
 const API_BASE_URL = "https://api.oceanticsports.com/oceantic/v1";
 const FILE_BASE_URL = "https://api.oceanticsports.com/";
@@ -19,6 +20,7 @@ export default function ParticipantDetailPage() {
   const { id } = params;
   const [participant, setParticipant] = useState(null);
   const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -54,6 +56,7 @@ export default function ParticipantDetailPage() {
   }
 
   return (
+    <ProtectedPage>
     <div className="p-8 font-sans bg-gray-50 min-h-screen">
       <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
         {/* Header */}
@@ -135,6 +138,7 @@ export default function ParticipantDetailPage() {
         </div>
       </div>
     </div>
+    </ProtectedPage>
   );
 }
 

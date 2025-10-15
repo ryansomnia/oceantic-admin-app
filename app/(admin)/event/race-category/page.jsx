@@ -6,6 +6,7 @@ import { LuSearch } from "react-icons/lu";
 import Swal from 'sweetalert2';
 import React from 'react';
 import Cookies from "js-cookie";
+import ProtectedPage from '@/app/components/ProtectedPage';
 
 // Sesuaikan dengan URL backend Anda yang benar
 const API_BASE_URL = 'https://api.oceanticsports.com/oceantic/v1';
@@ -329,6 +330,7 @@ export default function RaceCategoryManagementPage() {
         if (error) return <div className="text-center p-4 text-red-500">Error: {error}</div>;
 
         return (
+            <ProtectedPage>
             <div className="p-8">
                 <h2 className="text-3xl font-bold text-gray-800 mb-6">Manajemen Kategori Perlombaan</h2>
 
@@ -480,6 +482,7 @@ export default function RaceCategoryManagementPage() {
                     </div>
                 )}
             </div>
+            </ProtectedPage>
         );
     }
 
