@@ -275,38 +275,83 @@ export default function ParticipantManagementPage() {
             )}
           </tbody>
         </table>
-        {/* Pagination Controls */}
-        {totalPages > 1 && (
-            <div className="flex justify-center items-center mt-6 space-x-2">
+      {/* Pagination Controls */}
+{totalPages > 1 && (
+  <div className="flex justify-center items-center mt-6 space-x-2">
+    <button
+      onClick={() => setCurrentPageNumber(prev => Math.max(prev - 1, 1))}
+      disabled={currentPageNumber === 1}
+      className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      Previous
+    </button>
+
+    {/* Dynamic Pagination */}
+    {Array.from({ length: totalPages }, (_, index) => index + 1)
+      .filter((page) => {
+        if (totalPages <= 15) return true; // tampilkan semua jika <= 15
+
+        // Selalu tampilkan halaman pertama dan terakhir
+        if (page === 1 || page === totalPages) return true;
+
+        // Tampilkan beberapa halaman di sekitar halaman aktif
+        if (
+          page >= currentPageNumber - 2 &&
+          page <= currentPageNumber + 2
+        )
+          return true;
+
+        // Tambahkan beberapa di awal & akhir
+        if (page <= 3 || page >= totalPages - 2) return true;
+
+        return false;
+      })
+      .map((page, index, filteredPages) => {
+        // Tambahkan "..." jika ada jarak antara halaman
+        const prevPage = filteredPages[index - 1];
+        if (prevPage && page - prevPage > 1) {
+          return (
+            <React.Fragment key={page}>
+              <span className="px-2 text-gray-500">...</span>
               <button
-                onClick={() => setCurrentPageNumber(prev => Math.max(prev - 1, 1))}
-                disabled={currentPageNumber === 1}
-                className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => setCurrentPageNumber(page)}
+                className={`px-4 py-2 border rounded-lg ${
+                  currentPageNumber === page
+                    ? "bg-blue-600 text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-200"
+                }`}
               >
-                Previous
+                {page}
               </button>
-              {Array.from({ length: totalPages }, (_, index) => (
-                <button
-                  key={index + 1}
-                  onClick={() => setCurrentPageNumber(index + 1)}
-                  className={`px-4 py-2 border rounded-lg ${
-                    currentPageNumber === index + 1
-                      ? "bg-blue-600 text-white"
-                      : "bg-white text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  {index + 1}
-                </button>
-              ))}
-              <button
-                onClick={() => setCurrentPageNumber(prev => Math.min(prev + 1, totalPages))}
-                disabled={currentPageNumber === totalPages}
-                className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </div>
-          )}
+            </React.Fragment>
+          );
+        }
+
+        return (
+          <button
+            key={page}
+            onClick={() => setCurrentPageNumber(page)}
+            className={`px-4 py-2 border rounded-lg ${
+              currentPageNumber === page
+                ? "bg-blue-600 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            {page}
+          </button>
+        );
+      })}
+
+    <button
+      onClick={() => setCurrentPageNumber(prev => Math.min(prev + 1, totalPages))}
+      disabled={currentPageNumber === totalPages}
+      className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      Next
+    </button>
+  </div>
+)}
+
       </div>
     </div>
     </ProtectedPage>

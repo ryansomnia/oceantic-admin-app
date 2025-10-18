@@ -447,37 +447,66 @@ export default function UserManagementUI() {
             </tbody>
           </table>
           {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center mt-6 space-x-2">
-              <button
-                onClick={() => setCurrentPageNumber(prev => Math.max(prev - 1, 1))}
-                disabled={currentPageNumber === 1}
-                className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Previous
-              </button>
-              {Array.from({ length: totalPages }, (_, index) => (
-                <button
-                  key={index + 1}
-                  onClick={() => setCurrentPageNumber(index + 1)}
-                  className={`px-4 py-2 border rounded-lg ${
-                    currentPageNumber === index + 1
-                      ? "bg-blue-600 text-white"
-                      : "bg-white text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  {index + 1}
-                </button>
-              ))}
-              <button
-                onClick={() => setCurrentPageNumber(prev => Math.min(prev + 1, totalPages))}
-                disabled={currentPageNumber === totalPages}
-                className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </div>
-          )}
+        {/* Pagination Controls */}
+{totalPages > 1 && (
+  <div className="flex flex-wrap justify-center items-center mt-6 space-x-1">
+    {/* Tombol Previous */}
+    <button
+      onClick={() => setCurrentPageNumber(prev => Math.max(prev - 1, 1))}
+      disabled={currentPageNumber === 1}
+      className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      Previous
+    </button>
+
+    {/* Tombol nomor halaman */}
+    {Array.from({ length: totalPages }, (_, index) => {
+      const page = index + 1;
+      const showPage =
+        page === 1 ||
+        page === totalPages ||
+        (page >= currentPageNumber - 1 && page <= currentPageNumber + 1);
+
+      if (showPage) {
+        return (
+          <button
+            key={page}
+            onClick={() => setCurrentPageNumber(page)}
+            className={`px-4 py-2 border rounded-lg transition-colors ${
+              currentPageNumber === page
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-white text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            {page}
+          </button>
+        );
+      } else if (
+        (page === currentPageNumber - 2 && page > 1) ||
+        (page === currentPageNumber + 2 && page < totalPages)
+      ) {
+        return (
+          <span key={page} className="px-2 text-gray-500">
+            ...
+          </span>
+        );
+      }
+      return null;
+    })}
+
+    {/* Tombol Next */}
+    <button
+      onClick={() =>
+        setCurrentPageNumber(prev => Math.min(prev + 1, totalPages))
+      }
+      disabled={currentPageNumber === totalPages}
+      className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      Next
+    </button>
+  </div>
+)}
+
         </div>
       </div>
       </ProtectedPage>
