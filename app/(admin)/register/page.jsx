@@ -26,7 +26,8 @@ export default function ParticipantManagementPage() {
   const itemsPerPage = 5;
 
   // Ambil token otentikasi dari localStorage
-  const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+  const token = typeof window !== "undefined" ?  Cookies.get("authToken") : null;
+  // const token = Cookies.get("authToken"); // 🔥 ambil dari cookie
 
   // Fungsi untuk memuat semua data peserta dari backend
   const fetchParticipants = async () => {
